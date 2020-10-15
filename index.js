@@ -5,6 +5,7 @@ const fileUpload = require('express-fileupload')
 const fs = require('fs')
 const app = express();
 require('dotenv').config();
+const ObjectId = require('mongodb').ObjectID
 const port = 5000;
 
 //middleware 
@@ -96,6 +97,18 @@ client.connect(err => {
           res.send(documents)
       })
   })
+
+  app.patch("/update/:id",(req,res)=>{
+      const id = req.params.id;
+      const status = req.body.status;
+      orderCollection.updateOne({_id:ObjectId(id)},{
+          $set : {status:status}
+      })
+      .then(result =>{
+          res.send(result.modifiedCount>0)
+      })
+      
+  })
   
 
   app.post("/addFeedback",(req,res)=>{
@@ -105,7 +118,8 @@ client.connect(err => {
          res.send(result.insertedCount>0)
      })
   })
-  //to add admin
+
+  
   app.post("/addAdmin",(req,res)=>{
       const email = req.body
       adminCollection.insertOne(email)
